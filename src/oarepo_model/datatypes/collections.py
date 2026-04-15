@@ -454,6 +454,21 @@ class DynamicObjectDataType(ObjectDataType):
         return {}  # dynamic object has no explicit properties
 
     @override
+    def create_marshmallow_field(
+        self,
+        field_name: str,
+        element: dict[str, Any],
+    ) -> marshmallow.fields.Field:
+        """Return a Raw field that passes arbitrary JSON through unchanged on both load and dump."""
+        # Use the base DataType args, not ObjectDataType's override, because
+        # ObjectDataType._get_marshmallow_field_args injects 'nested' which is
+        # only meaningful for Nested fields and causes a marshmallow warning on Raw.
+        from .base import DataType
+        return marshmallow.fields.Raw(
+            **DataType._get_marshmallow_field_args(self, field_name, element),
+        )
+
+    @override
     def create_marshmallow_schema(
         self,
         element: dict[str, Any],

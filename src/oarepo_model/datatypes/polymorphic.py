@@ -281,16 +281,23 @@ class PolymorphicField(ma.fields.Field):
             return value
 
         discriminator_value = self.get_discriminator_value(value)
-        if discriminator_value in self.alternatives:
-            schema_field = self.alternatives[discriminator_value]
-            return schema_field._serialize(  # noqa: SLF001 private access
-                value,
-                attr,
-                obj,
-                **kwargs,
-            )
+        if discriminator_value not in self.alternatives:
+            return value
 
-        return value
+        schema_field = self.alternatives[discriminator_value]
+        serialized = schema_field._serialize(  # noqa: SLF001 private access
+            value,
+            attr,
+            obj,
+            **kwargs,
+        )
+
+        # Re-add the discriminator: the sub-schema only dumps its declared fields
+        # and would otherwise silently drop it, breaking round-trips.
+        if isinstance(serialized, dict):
+            serialized[self.discriminator] = discriminator_value
+
+        return serialized
 
     @override
     def _deserialize(
@@ -304,12 +311,29 @@ class PolymorphicField(ma.fields.Field):
         discriminator_value = self.get_discriminator_value(value)
 
         if discriminator_value not in self.alternatives:
-            self.fail("unknown_type", type=discriminator_value)
+            raise ma.ValidationError(
+                f"Unknown type {discriminator_value!r}. "
+                f"Valid types are: {list(self.alternatives)}",
+            )
+
+        # Strip the discriminator before handing off to the sub-schema.
+        # The sub-schema has unknown=RAISE and does not declare the discriminator
+        # field, so passing the full dict causes ValidationError: Unknown field.
+        value_without_discriminator = {
+            k: v for k, v in value.items() if k != self.discriminator
+        }
 
         schema_field = self.alternatives[discriminator_value]
-        return schema_field._deserialize(  # noqa: SLF001 private access
-            value,
+        result = schema_field._deserialize(  # noqa: SLF001 private access
+            value_without_discriminator,
             attr,
             data,
             **kwargs,
         )
+
+        # Put the discriminator back into the deserialized result so that
+        # _serialize can find it and round-trips are lossless.
+        if isinstance(result, dict):
+            result[self.discriminator] = discriminator_value
+
+        return result

@@ -156,25 +156,42 @@ class PIDRelation(ObjectDataType):
         self,
         element: dict[str, Any],
         path: list[tuple[str, dict[str, Any]]],  # noqa: ARG002 for overriding
-    ) -> PIDFieldContext:
-        """Get the PID field from the element."""
+    ) -> Callable[[], PIDFieldContext]:
+        """Return a lazy callable that resolves the PID field on first use.
+
+        Deferring the import to apply()-time avoids build failures caused by
+        circular imports or modules that are not yet on sys.path when the model
+        file is first loaded.
+        """
         if "pid_field" in element:
-            pidf = cast(
-                "Callable[[dict[str, Any]], PIDFieldContext]",
-                obj_or_import_string(element["pid_field"]),
-            )
-            if pidf is None or not callable(pidf):
-                raise ValueError(
-                    f"PID field {element['pid_field']} could not be imported.",
+            raw = element["pid_field"]
+
+            def resolve_pid_field(_raw: Any = raw, _element: Any = element) -> PIDFieldContext:
+                pidf = cast(
+                    "Callable[[dict[str, Any]], PIDFieldContext]",
+                    obj_or_import_string(_raw),
                 )
-            return pidf(element)
+                if pidf is None or not callable(pidf):
+                    raise ValueError(
+                        f"PID field {_raw!r} could not be imported.",
+                    )
+                return pidf(_element)
+
+            return resolve_pid_field
+
         if "record_cls" in element:
-            rec = obj_or_import_string(element["record_cls"])
-            if rec is None or not hasattr(rec, "pid"):
-                raise ValueError(
-                    f"Record class {element['record_cls']} does not have a 'pid' attribute.",
-                )
-            return rec.pid
+            raw = element["record_cls"]
+
+            def resolve_record_cls(_raw: Any = raw) -> PIDFieldContext:
+                rec = obj_or_import_string(_raw)
+                if rec is None or not hasattr(rec, "pid"):
+                    raise ValueError(
+                        f"Record class {_raw!r} does not have a 'pid' attribute.",
+                    )
+                return rec.pid
+
+            return resolve_record_cls
+
         raise ValueError(
             "Either 'pid_field' or 'record_cls' must be provided in the pid-relation element.",
         )
