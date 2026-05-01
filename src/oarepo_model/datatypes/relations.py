@@ -39,6 +39,14 @@ if TYPE_CHECKING:
     from oarepo_model.customizations.base import Customization
 
 
+VOCABULARY_TERM_MAPPING: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "id": {"type": "keyword", "ignore_above": 256},
+    },
+}
+
+
 class PIDRelation(ObjectDataType):
     """Relation to another record using a PID.
 
@@ -48,12 +56,28 @@ class PIDRelation(ObjectDataType):
         type: pid-relation
         keys:
         - id
-        - metadata.title:
-            type: i18nstr
+        - metadata.title
         record_cls: "my_other_model.records:record" or class   (not required if pid_field is provided)
         pid_field: "my_module:pid_field_getter" or PIDField instance (not required if record_cls is provided)
         cache_key: "my_cache_key" (optional, used for caching the resolved record)
+        vocab_keys:           # keys whose denormalised value is a vocabulary term object
+          - metadata.activity_type
     ```
+
+    String entries in *keys* default to ``{"type": "keyword"}`` in the
+    generated OpenSearch mapping.  If a key resolves to a vocabulary term in
+    the target model the denormalised document stores an *object*
+    ``{"id": "..."}`` rather than a plain string, which causes a
+    ``mapper_parsing_exception`` when the mapping declares it a scalar keyword.
+
+    Declare such keys in ``vocab_keys`` to emit the correct object mapping::
+
+        {"type": "object", "properties": {"id": {"type": "keyword"}}}
+
+    Alternatively, use the explicit dict form in the *keys* list::
+
+        keys:
+          - {metadata.activity_type: {type: object, properties: {id: {type: keyword}}}}
     """
 
     TYPE = "pid-relation"
@@ -80,10 +104,12 @@ class PIDRelation(ObjectDataType):
                     f"Expected 'properties' to be a dict, got {type(element['properties'])}.",
                 )
             return cast("dict[str, Any]", element["properties"])
+        vocab_keys: set[str] = set(element.get("vocab_keys", []))
         ret: dict[str, Any] = {}
         for key in element["keys"]:
             if isinstance(key, str):
-                set_key_model(ret, key, {"type": "keyword"})
+                mapping = VOCABULARY_TERM_MAPPING if key in vocab_keys else {"type": "keyword"}
+                set_key_model(ret, key, mapping)
             elif isinstance(key, dict):
                 for k, v in key.items():
                     set_key_model(ret, k, v)
