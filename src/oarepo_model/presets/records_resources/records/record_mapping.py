@@ -43,7 +43,7 @@ class RecordMappingPreset(Preset):
         mapping = always_merger.merge(
             {
                 "mappings": {
-                    "dynamic": "strict",
+                    "dynamic": True,
                     "properties": {
                         "$schema": {"type": "keyword"},
                         "id": {"type": "keyword"},
