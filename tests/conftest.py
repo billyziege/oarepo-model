@@ -137,6 +137,30 @@ def empty_model(model_types):
 
 
 @pytest.fixture(scope="session")
+def synthetic_metadata_model(model_types):
+    from oarepo_model.api import model
+    from oarepo_model.customizations.high_level.set_synthetic_metadata import (
+        SetSyntheticMetadata,
+    )
+    from oarepo_model.presets.records_resources import records_resources_preset
+
+    synthetic_metadata_model = model(
+        name="synthetic_metadata_test",
+        version="1.0.0",
+        presets=[records_resources_preset],
+        types=[model_types],
+        metadata_type="Metadata",
+        customizations=[
+            SetSyntheticMetadata(
+                title_upper=lambda d: d["title"].upper(),
+            ),
+        ],
+    )
+    synthetic_metadata_model.register()
+    return synthetic_metadata_model
+
+
+@pytest.fixture(scope="session")
 def csv_imports_model(model_types):
     import csv
     import io
@@ -854,6 +878,7 @@ def extra_entry_points(
     multilingual_model,
     ui_links_model,
     datacite_exports_model,
+    synthetic_metadata_model,
 ):
     return {
         "invenio_base.blueprints": [

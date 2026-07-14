@@ -6,7 +6,7 @@
 # oarepo-model is free software; you can redistribute it and/or modify it
 # under the terms of the MIT License; see LICENSE file for more details.
 #
-"""Module to generate metadata schema for records."""
+"""Module to generate draft-specific facets."""
 
 from __future__ import annotations
 
@@ -20,9 +20,6 @@ from oarepo_model.customizations import (
     Customization,
 )
 from oarepo_model.presets import Preset
-from oarepo_model.presets.records_resources.services.records.record_facets import (
-    get_facets,
-)
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -31,10 +28,10 @@ if TYPE_CHECKING:
     from oarepo_model.model import InvenioModel
 
 
-class MetadataFacetsPreset(Preset):
-    """Preset for record service class."""
+class DraftFacetsPreset(Preset):
+    """Preset for draft-specific facets (is_published)."""
 
-    provides = ("MetadataFacets",)
+    provides = ("DraftFacets",)
     modifies = ("RecordFacets",)
 
     @override
@@ -44,11 +41,18 @@ class MetadataFacetsPreset(Preset):
         model: InvenioModel,
         dependencies: dict[str, Any],
     ) -> Generator[Customization]:
-        if model.metadata_type is not None:
-            facets = get_facets(builder, model.metadata_type, prefix="metadata")
-            search_options_facets = {}
-            for f in facets:
-                yield AddToModule("facets", f, build_facet(facets[f]))
-                search_options_facets[f] = build_facet(facets[f])
+        draft_facets: dict[str, list[dict[str, str | object]]] = {
+            "is_published": [
+                {
+                    "facet": "invenio_records_resources.services.records.facets.TermsFacet",
+                    "field": "is_published",
+                }
+            ],
+        }
 
-            yield AddToDictionary("RecordFacets", search_options_facets)
+        search_options_facets = {}
+        for facet_name, facet_def in draft_facets.items():
+            yield AddToModule("facets", facet_name, build_facet(facet_def))
+            search_options_facets[facet_name] = build_facet(facet_def)
+
+        yield AddToDictionary("RecordFacets", search_options_facets)

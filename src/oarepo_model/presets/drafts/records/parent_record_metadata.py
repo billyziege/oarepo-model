@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, override
 
 from invenio_db import db
 from invenio_records.models import RecordMetadataBase
+from sqlalchemy import String
 
 from oarepo_model.customizations import (
     AddBaseClass,
@@ -52,6 +53,11 @@ class ParentRecordMetadataPreset(Preset):
             "ParentRecordMetadata",
             "__tablename__",
             f"{builder.model.base_name}_parent_metadata",
+        )
+        yield AddClassField(
+            "ParentRecordMetadata",
+            "model",
+            db.Column(String, default=builder.model.base_name),
         )
         yield AddBaseClass("ParentRecordMetadata", db.Model)
         yield AddBaseClass("ParentRecordMetadata", RecordMetadataBase)

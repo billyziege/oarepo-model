@@ -54,8 +54,6 @@ from .records.published_record_metadata_with_parent import (
     RecordMetadataWithParentPreset,
 )
 from .records.published_record_with_parent import RecordWithParentPreset
-from .records.record_proxy import DraftRecordProxyPreset
-from .records.record_resolver import DraftRecordResolverPreset
 from .resources.files.draft_file_resource import DraftFileResourcePreset
 from .resources.files.draft_file_resource_config import DraftFileResourceConfigPreset
 from .resources.files.draft_media_file_resource import DraftMediaFileResourcePreset
@@ -87,6 +85,7 @@ from .services.files.media_files_record_service_config import (
 from .services.files.no_upload_file_service_config import (
     NoUploadFileServiceConfigPreset,
 )
+from .services.records.draft_facets import DraftFacetsPreset
 from .services.records.parent_record_schema import ParentRecordSchemaPreset
 from .services.records.record_schema import DraftRecordSchemaPreset
 from .services.records.relations import RelationsServiceComponentPreset
@@ -111,8 +110,6 @@ drafts_records_preset: list[type[Preset]] = [
     ParentPIDProviderPreset,
     DraftMappingPreset,
     DraftWithRelationsPreset,
-    DraftRecordResolverPreset,
-    DraftRecordProxyPreset,
     # service layer
     DraftServiceConfigPreset,
     DraftServicePreset,
@@ -120,6 +117,7 @@ drafts_records_preset: list[type[Preset]] = [
     RelationsServiceComponentPreset,
     ParentRecordSchemaPreset,
     DraftSearchOptionsPreset,
+    DraftFacetsPreset,
     # resource layer
     DraftResourcePreset,
     DraftResourceConfigPreset,

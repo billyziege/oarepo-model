@@ -81,6 +81,12 @@ def test_datacite_service(app):
     return app.extensions["datacite_export_test"].records_service
 
 
+@pytest.fixture(scope="module")
+def synthetic_metadata_service(app):
+    """Service instance."""
+    return app.extensions["synthetic_metadata_test"].records_service
+
+
 @pytest.fixture
 def input_data():
     """Input data (as coming from the view layer)."""

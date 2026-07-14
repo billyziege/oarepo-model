@@ -33,6 +33,9 @@ from oarepo_model.customizations import (
 )
 from oarepo_model.model import Dependency, InvenioModel
 from oarepo_model.presets import Preset
+from oarepo_model.presets.records_resources.records.synthetic_metadata import (
+    MetadataField,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -48,6 +51,7 @@ class DraftPreset(Preset):
         "PIDField",
         "PIDProvider",
         "PIDFieldContext",
+        "synthetic_metadata",
     )
 
     provides = ("Draft",)
@@ -107,6 +111,11 @@ class DraftPreset(Preset):
             # (REGISTERED) state, so that search/indexing and services can
             # consistently filter by publication status across both record types.
             is_published = PIDStatusCheckField(status=PIDStatus.REGISTERED, dump=True)
+
+            if dependencies.get("synthetic_metadata"):
+                metadata = MetadataField(key="metadata", synthetic=dependencies["synthetic_metadata"])
+            else:
+                metadata = InvenioDraft.metadata
 
         yield AddClass(
             "Draft",

@@ -14,7 +14,7 @@ pip install oarepo-model
 
 ### Requirements
 
-- Python 3.13+
+- Python 3.14+
 - Invenio 14.x
 
 ## High-level API
@@ -93,6 +93,7 @@ of the `model` function. The following customizations are available, importable 
 | `SetIndexTotalFieldsLimit(limit)` | Sets the `index.mapping.total_fields.limit` setting. |
 | `SetIndexNestedFieldsLimit(limit)` | Sets the `index.mapping.nested_fields.limit` setting. |
 | `SetPermissionPolicy(policy_class)` | Sets the permission policy for the model. |
+| `SetSyntheticMetadata(**set_fns)` | Specifies a dict of synthetic metadata field names and their setter functions. |
 
 ### Extending class with a mixin
 

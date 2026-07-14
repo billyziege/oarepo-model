@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 class AddToDictionary(Customization):
     """Customization to add a value to a dictionary to the model."""
 
-    def __init__(
+    def __init__(  # noqa PLR0913
         self,
         dictionary_name: str,
         *values: dict[str, Any],
@@ -38,6 +38,7 @@ class AddToDictionary(Customization):
         value: Any = None,
         exists_ok: bool = False,
         patch: bool = False,
+        override_values: bool = True,
     ) -> None:
         """Initialize the AddDictionary customization.
 
@@ -51,12 +52,18 @@ class AddToDictionary(Customization):
         self.values = values
         self.exists_ok = exists_ok
         self.patch = patch
+        self.override_values = override_values
 
     @override
     def apply(self, builder: InvenioModelBuilder, model: InvenioModel) -> None:
         d = builder.add_dictionary(self.name, exists_ok=True)
         for value in self.values:
-            always_merger.merge(d, value)
+            if self.override_values:
+                always_merger.merge(d, value)
+            else:
+                for k, new_value in value.items():
+                    if k not in d:
+                        d[k] = new_value
         if self.key is not None:
             if self.key in d and not self.exists_ok:
                 if not self.patch:

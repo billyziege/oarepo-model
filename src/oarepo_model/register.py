@@ -162,7 +162,7 @@ class InMemoryTraversable(importlib.resources.abc.Traversable):
     # The real signature is (child: StrPath) -> InMemoryTraversable but StrPath is not exported
     # in importlib.resources.abc
     @override
-    def __truediv__(self, child: str) -> InMemoryTraversable:  # type: ignore[reportIncompatibleMethodOverride]
+    def __truediv__(self, child: str) -> InMemoryTraversable:  # type: ignore[override,reportIncompatibleMethodOverride]
         """Navigate to a child path using the / operator."""
         if self.is_file():
             raise NotADirectoryError(f"{self._name} is not a directory")
@@ -204,7 +204,7 @@ class InMemoryTraversable(importlib.resources.abc.Traversable):
     # The real signature is (*descendants: StrPath) -> InMemoryTraversable but StrPath is not exported
     # in importlib.resources.abc
     @override
-    def joinpath(self, *descendants: str) -> importlib.resources.abc.Traversable:  # type: ignore[reportIncompatibleMethodOverride]
+    def joinpath(self, *descendants: str) -> importlib.resources.abc.Traversable:  # type: ignore[override, reportIncompatibleMethodOverride]
         """Join the descendants into a single path, beginning with this traversable."""
         pth = self
         for descendant in descendants:

@@ -272,6 +272,7 @@ class FacetMixin(FacetMixinBase):
                 content=nested_facets,
                 facet_class=self.facet_name,
                 facet_kwargs=self._get_facet_kwargs(path, element),
+                label=element.get("label"),
             )
         return facets
 

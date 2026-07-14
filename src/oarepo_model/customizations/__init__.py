@@ -45,6 +45,7 @@ from .high_level import (
     SetIndexNestedFieldsLimit,
     SetIndexTotalFieldsLimit,
     SetPermissionPolicy,
+    SetSyntheticMetadata,
 )
 from .patch_json_file import PatchJSONFile
 from .prepend_mixin import PrependMixin
@@ -80,4 +81,5 @@ __all__ = [
     "SetIndexNestedFieldsLimit",
     "SetIndexTotalFieldsLimit",
     "SetPermissionPolicy",
+    "SetSyntheticMetadata",
 ]

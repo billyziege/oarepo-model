@@ -23,6 +23,9 @@ from oarepo_model.customizations import (
 )
 from oarepo_model.model import Dependency, InvenioModel
 from oarepo_model.presets import Preset
+from oarepo_model.presets.records_resources.records.synthetic_metadata import (
+    MetadataField,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -38,6 +41,7 @@ class RecordPreset(Preset):
         "PIDField",
         "PIDProvider",
         "PIDFieldContext",
+        "synthetic_metadata",
     )
 
     provides = ("Record",)
@@ -79,6 +83,11 @@ class RecordPreset(Preset):
                     record_dumper_extensions
                 ),
             )
+
+            if dependencies.get("synthetic_metadata"):
+                metadata = MetadataField(key="metadata", synthetic=dependencies["synthetic_metadata"])
+            else:
+                metadata = InvenioRecord.metadata
 
         yield AddClass(
             "Record",

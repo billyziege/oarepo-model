@@ -43,3 +43,17 @@ def test_facet(
     no_hit = facet_service.search(identity_simple, q=f"id:{id_}", size=25, page=1, facets={"metadata.b": ["xy"]})
     assert hit.total == 1
     assert no_hit.total == 0
+
+
+def test_draft_facets_preset_adds_is_published_facet(
+    app,
+    facet_service,
+    identity_simple,
+    input_facets_data,
+    facet_model,
+    search,
+    search_clear,
+    location,
+):
+    """Test that DraftFacetsPreset adds is_published facet to search options."""
+    assert hasattr(facet_model.facets, "is_published")

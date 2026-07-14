@@ -16,7 +16,13 @@ to the model while ensuring that the model remains consistent, functional and up
 
 from __future__ import annotations
 
+from importlib.metadata import PackageNotFoundError, version
+
 from .datatypes.registry import from_json, from_yaml
 
-__version__ = "0.1.0dev50"
+try:
+    __version__ = version("oarepo-model")
+except PackageNotFoundError:
+    __version__ = "0.0.0dev0+unknown"
+
 __all__ = ["__version__", "from_json", "from_yaml"]

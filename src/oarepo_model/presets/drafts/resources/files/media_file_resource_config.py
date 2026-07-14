@@ -48,7 +48,7 @@ class MediaFileResourceConfigPreset(Preset):
     ) -> Generator[Customization]:
         class MediaFileResourceConfigMixin:
             blueprint_name = f"{model.base_name}_media_files"
-            url_prefix = f"/{model.slug}/<pid_value>/media-files"
+            url_prefix = f"/{model.slug}/<pid_value>"
             # Response handling
             response_handlers = Dependency("media_file_response_handlers")
 

@@ -29,6 +29,7 @@ from .index_settings import (
     SetIndexTotalFieldsLimit,
 )
 from .set_permission_policy import SetPermissionPolicy
+from .set_synthetic_metadata import SetSyntheticMetadata
 
 __all__ = (
     "AddLink",
@@ -43,4 +44,5 @@ __all__ = (
     "SetIndexNestedFieldsLimit",
     "SetIndexTotalFieldsLimit",
     "SetPermissionPolicy",
+    "SetSyntheticMetadata",
 )

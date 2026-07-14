@@ -39,6 +39,7 @@ class AddMetadataExport(Customization):
         name: LazyString,
         mimetype: str,
         serializer: BaseSerializer,
+        about_serializer: Any | None = None,
         display: bool = True,
         oai_metadata_prefix: str | None = None,
         oai_schema: str | None = None,
@@ -64,6 +65,7 @@ class AddMetadataExport(Customization):
         self._name = name
         self._mimetype = mimetype
         self._serializer = serializer
+        self._about_serializer = about_serializer
         self._display = display
         self._oai_metadata_prefix = oai_metadata_prefix
         self._oai_schema = oai_schema
@@ -79,6 +81,7 @@ class AddMetadataExport(Customization):
                 name=self._name,
                 mimetype=self._mimetype,
                 serializer=self._serializer,
+                about_serializer=self._about_serializer,
                 display=self._display,
                 oai_metadata_prefix=self._oai_metadata_prefix,
                 oai_schema=self._oai_schema,

@@ -121,8 +121,6 @@ class WrappedDataType(DataType):
         path_suffix: str = "",
     ) -> Any:
         """Create facets for the wrapped data type."""
-        if self.name == "Metadata":
-            path = "metadata"
         return cast("ObjectDataType", self.impl).get_facet(
             path,
             element=self._merge_type_dict(element),

@@ -38,3 +38,37 @@ def test_add_to_dictionary():
 
     AddToDictionary("BDict", {"a": "1"}).apply(builder, model)
     assert builder.get_dictionary("BDict")["a"] == "1"
+
+
+def test_add_to_dictionary_override_values():
+    model = MagicMock()
+    type_registry = MagicMock()
+    builder = InvenioModelBuilder(model, type_registry)
+    builder.add_dictionary("CDict")
+
+    AddToDictionary("CDict", {"a": "1", "nested": {"x": "original"}}).apply(builder, model)
+
+    AddToDictionary(
+        "CDict",
+        {"a": "2", "b": "3", "nested": {"x": "new", "y": "added"}},
+        override_values=True,
+    ).apply(builder, model)
+    assert builder.get_dictionary("CDict") == {
+        "a": "2",
+        "b": "3",
+        "nested": {"x": "new", "y": "added"},
+    }
+
+    builder.add_dictionary("DDict")
+    AddToDictionary("DDict", {"a": "1", "nested": {"x": "original"}}).apply(builder, model)
+
+    AddToDictionary(
+        "DDict",
+        {"a": "2", "b": "3", "nested": {"x": "new", "y": "added"}},
+        override_values=False,
+    ).apply(builder, model)
+    assert builder.get_dictionary("DDict") == {
+        "a": "1",
+        "b": "3",
+        "nested": {"x": "original"},
+    }
